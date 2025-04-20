@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Eliminar Estación" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card border-danger shadow-lg">
+        <div class="card-header bg-danger text-white">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>{% trans "Confirmar Eliminación" %}
+            </h3>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">{% trans "¡Acción irreversible!" %}</h4>
+                    <p class="mb-0">
+                        {% blocktrans with nombre=estacion.nombre %}
+                        Estás a punto de eliminar permanentemente la estación <strong>"{{ nombre }}"</strong> y todos sus datos asociados.
+                        {% endblocktrans %}
+                    </p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-5">{% trans "Ubicación:" %}</dt>
+                            <dd class="col-sm-7">{{ estacion.ubicacion }}</dd>
+
+                            <dt class="col-sm-5">{% trans "Empresa:" %}</dt>
+                            <dd class="col-sm-7">{{ estacion.empresa|default:"-" }}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-5">{% trans "Abanderado:" %}</dt>
+                            <dd class="col-sm-7">{{ estacion.abanderado|default:"-" }}</dd>
+
+                            <dt class="col-sm-5">{% trans "Teléfono:" %}</dt>
+                            <dd class="col-sm-7">{{ estacion.telefono|default:"-" }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-light">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-danger btn-lg">
+                        <i class="fas fa-trash-alt me-2"></i>{% trans "Eliminar Definitivamente" %}
+                    </button>
+                    <a href="{% url 'GVS:estacion_list' %}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+// Inicializar tooltips si existen
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+})
+</script>
+{% endblock %}

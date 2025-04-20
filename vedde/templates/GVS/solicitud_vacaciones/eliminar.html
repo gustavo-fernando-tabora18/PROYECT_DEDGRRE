@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Eliminar Solicitud" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card border-danger shadow-lg">
+        <div class="card-header bg-danger text-white">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>{% trans "Confirmar Eliminación" %}
+            </h3>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">{% trans "¡Acción irreversible!" %}</h4>
+                    <p class="mb-0">
+                        {% blocktrans with empleado=solicitud.empleado fecha=solicitud.fecha_inicio|date:"d/m/Y" dias=solicitud.dias_solicitados %}
+                        Estás a punto de eliminar la solicitud de <strong>{{ empleado }}</strong> del {{ fecha }} ({{ dias }} días).
+                        {% endblocktrans %}
+                    </p>
+                    {% if reintegrar_dias %}
+                    <hr>
+                    <p class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {% trans "Se reintegrarán los días al beneficio del empleado." %}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-footer bg-light">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-danger btn-lg">
+                        <i class="fas fa-trash-alt me-2"></i>{% trans "Eliminar Definitivamente" %}
+                    </button>
+                    <a href="{% url 'GVS:solicitud_vacaciones_list' %}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

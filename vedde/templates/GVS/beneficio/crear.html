@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Nuevo Beneficio" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow-lg">
+        <div class="card-header bg-success text-white">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-plus-circle me-2"></i>{% trans "Registrar Nuevo Beneficio" %}
+            </h3>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="card-body">
+                <div class="row g-3"> 
+                    <!-- Campo Empleado -->
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <!-- Mostrar solo empleados sin beneficios existentes -->
+                            <select 
+                                name="empleado" 
+                                id="id_empleado" 
+                                class="form-select {% if form.empleado.errors %}is-invalid{% endif %}"
+                                required
+                            >
+                                <option value="">---------</option>
+                                {% for empleado in form.fields.empleado.queryset %}
+                                    <option value="{{ empleado.id }}" {% if form.empleado.value == empleado.id %}selected{% endif %}>
+                                        {{ empleado.solicitante.nombre }} {{ empleado.solicitante.apellido }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <label for="id_empleado">{{ form.empleado.label }}</label>
+                            {% if form.empleado.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.empleado.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                {{ form.empleado.help_text }}
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Campos de Días -->
+                    <div class="col-md-4">
+                        <div class="card h-100 border-primary">
+                            <div class="card-header bg-primary text-white">
+                                {% trans "Días Base" %}
+                            </div>
+                            <div class="card-body">
+                                <div class="form-floating">
+                                    {{ form.dias_base }}
+                                    <label for="{{ form.dias_base.id_for_label }}">{{ form.dias_base.label }}</label>
+                                    <small class="form-text text-muted">{{ form.dias_base.help_text }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card h-100 border-warning">
+                            <div class="card-header bg-warning text-dark">
+                                {% trans "Días Usados" %}
+                            </div>
+                            <div class="card-body">
+                                <div class="form-floating">
+                                    {{ form.dias_tomados }}
+                                    <label for="{{ form.dias_tomados.id_for_label }}">{{ form.dias_tomados.label }}</label>
+                                    <small class="form-text text-muted">{{ form.dias_tomados.help_text }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card h-100 border-secondary">
+                            <div class="card-header bg-secondary text-white">
+                                {% trans "Días Disponibles" %}
+                            </div>
+                            <div class="card-body">
+                                <div class="form-floating">
+                                    <input type="number" 
+                                           id="dias-disponibles-preview" 
+                                           class="form-control-plaintext bg-light"
+                                           readonly
+                                           value="0">
+                                    <label>{% trans "Días Disponibles Estimados" %}</label>
+                                    <small class="form-text text-muted">
+                                        {% trans "Cálculo automático al guardar" %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-light">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save me-2"></i>{% trans "Guardar Beneficio" %}
+                    </button>
+                    <a href="{% url 'GVS:beneficio_list' %}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar Select2 para empleados
+    $('.form-select').select2({
+        theme: 'bootstrap-5',
+        placeholder: '{% trans "Seleccione un empleado" %}',
+        allowClear: true,
+        width: '100%'
+    });
+
+    // Actualizar vista previa de días disponibles
+    function actualizarPreview() {
+        const base = parseInt(document.getElementById('id_dias_base').value) || 0;
+        const tomados = parseInt(document.getElementById('id_dias_tomados').value) || 0;
+        const disponibles = Math.max(0, base - tomados);
+        document.getElementById('dias-disponibles-preview').value = disponibles;
+        
+        // Actualizar máximo permitido para días tomados
+        document.getElementById('id_dias_tomados').max = base;
+    }
+
+    // Event listeners para cambios
+    document.getElementById('id_dias_base').addEventListener('input', actualizarPreview);
+    document.getElementById('id_dias_tomados').addEventListener('input', actualizarPreview);
+    
+    // Ejecutar al cargar
+    actualizarPreview();
+});
+</script>
+{% endblock %}

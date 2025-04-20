@@ -1,0 +1,44 @@
+<!-- Modal para Añadir Empresa -->
+{% load static i18n %}
+<div class="modal fade" id="addEmpresaModal" tabindex="-1" aria-labelledby="addEmpresaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h2 class="h5 modal-title" id="addEmpresaModalLabel">{% trans "Nueva Empresa" %}</h2>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{% trans 'Cerrar' %}"></button>
+            </div>
+            <div class="modal-body">
+                <form id="empresaForm" method="post" action="{% url 'GVS:empresa_create' %}" class="row g-3">
+                    {% csrf_token %}
+                    {% for field in empresa_form %}
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-bold">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+                </button>
+                <button type="submit" form="empresaForm" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>{% trans "Guardar Empresa" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

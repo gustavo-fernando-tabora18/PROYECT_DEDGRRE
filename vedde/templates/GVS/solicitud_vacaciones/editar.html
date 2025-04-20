@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Editar Solicitud" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow-lg">
+        <div class="card-header bg-warning text-dark">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-edit me-2"></i>{% trans "Editar Estado de Solicitud" %}
+            </h3>
+        </div>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="alert alert-info">
+                            <h5 class="mb-2">{% trans "Detalles de la solicitud" %}</h5>
+                            <p class="mb-1">
+                                <strong>{% trans "Empleado:" %}</strong> {{ object.empleado }}<br>
+                                <strong>{% trans "Días solicitados:" %}</strong> {{ object.dias_solicitados }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Estado" %}</label>
+                            {{ form.estado }}
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Motivo Rechazo" %}</label>
+                            {{ form.motivo_rechazo }}
+                            <small class="form-text text-muted">
+                                {% trans "Complete solo si rechaza la solicitud" %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-warning btn-lg">
+                        <i class="fas fa-save me-2"></i>{% trans "Actualizar Estado" %}
+                    </button>
+                    <a href="{% url 'GVS:solicitud_vacaciones_list' %}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

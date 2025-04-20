@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="mb-0">{% trans "Detalle de Auditoría" %}</h3>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">{% trans "Fecha" %}</dt>
+                <dd class="col-sm-9">{{ registro.fecha|date:"SHORT_DATETIME_FORMAT" }}</dd>
+
+                <dt class="col-sm-3">{% trans "Usuario" %}</dt>
+                <dd class="col-sm-9">{{ registro.usuario.username|default:"Sistema" }}</dd>
+
+                <dt class="col-sm-3">{% trans "Acción" %}</dt>
+                <dd class="col-sm-9">
+                    <span class="badge 
+                        {% if registro.accion == 'C' %}bg-success
+                        {% elif registro.accion == 'A' %}bg-primary
+                        {% elif registro.accion == 'E' %}bg-danger
+                        {% else %}bg-secondary{% endif %}">
+                        {{ registro.get_accion_display }}
+                    </span>
+                </dd>
+
+                <dt class="col-sm-3">{% trans "Modelo" %}</dt>
+                <dd class="col-sm-9">{{ registro.modelo_afectado }}</dd>
+
+                <dt class="col-sm-3">{% trans "ID Objeto" %}</dt>
+                <dd class="col-sm-9">{{ registro.id_objeto|default:"-" }}</dd>
+
+                <dt class="col-sm-3">{% trans "Dirección IP" %}</dt>
+                <dd class="col-sm-9">{{ registro.ip }}</dd>
+
+                <dt class="col-sm-3">{% trans "Detalles completos" %}</dt>
+                <dd class="col-sm-9">
+                    {% if detalles_formateados %}
+                        <pre class="bg-light p-3 rounded">{{ detalles_formateados }}</pre>
+                    {% else %}
+                        <div class="alert alert-info">{% trans "No hay detalles adicionales" %}</div>
+                    {% endif %}
+                </dd>
+            </dl>
+            
+            <a href="{% url 'GVS:auditoria_list' %}" class="btn btn-secondary">
+                {% trans "Volver al listado" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

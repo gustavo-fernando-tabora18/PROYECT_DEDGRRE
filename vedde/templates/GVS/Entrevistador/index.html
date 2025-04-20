@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Listado de Entrevistadores{% endblock %}
+
+{% block content %}
+<h1>Listado de Entrevistadores</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Cargo</th>
+            <th>Teléfono</th>
+            <th>Correo Electrónico</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entrevistador in entrevistadores %}
+        <tr>
+            <td>{{ entrevistador.nombre }}</td>
+            <td>{{ entrevistador.cargo }}</td>
+            <td>{{ entrevistador.telefono }}</td>
+            <td>{{ entrevistador.correo_electronico }}</td>
+            <td>
+                <a href="{% url 'GVS:entrevistador_update' entrevistador.pk %}" class="btn btn-warning">Editar</a>
+                <a href="{% url 'GVS:entrevistador_delete' entrevistador.pk %}" class="btn btn-danger">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'GVS:entrevistador_create' %}" class="btn btn-primary">Crear Entrevistador</a>
+{% endblock %}

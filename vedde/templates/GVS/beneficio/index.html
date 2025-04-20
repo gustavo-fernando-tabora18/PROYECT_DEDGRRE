@@ -1,0 +1,116 @@
+<!-- GVS/beneficio/index.html -->
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Gestión de Beneficios" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="fas fa-calendar-check me-2"></i>{% trans "Beneficios de Vacaciones" %}</h3>
+            <a href="{% url 'GVS:beneficio_create' %}" class="btn btn-light btn-sm">
+                <i class="fas fa-plus-circle me-2"></i>{% trans "Nuevo Beneficio" %}
+            </a>
+        </div>
+
+        <div class="card-body">
+
+            
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>{% trans "Empleado" %}</th>
+                            <th>{% trans "Días Base" %}</th>
+                            <th>{% trans "Días Usados" %}</th>
+                            <th>{% trans "Días adicionales" %}</th>
+                            <th>{% trans "Sald o Disponible" %}</th>
+                            <th class="text-end">{% trans "Acciones" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for beneficio in beneficios %}
+                        <tr>
+                            <td>{{ beneficio.empleado.solicitante.nombre }}</td>
+                            <td>{{ beneficio.dias_base }}</td>
+                            <td class="{% if beneficio.dias_tomados > 0 %}text-warning{% endif %}">
+                                {{ beneficio.dias_tomados }}
+                            </td>
+                            <td>{{ beneficio.dias_adicionales }}</td>
+                            <td class="fw-bold {% if beneficio.saldo_disponible > 5 %}text-success{% else %}text-danger{% endif %}">
+                                {{ beneficio.saldo_disponible }}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group">
+                                    <a href="{% url 'GVS:beneficio_edit' beneficio.pk %}" 
+                                       class="btn btn-sm btn-outline-warning"
+                                       data-bs-toggle="tooltip"
+                                       title="{% trans 'Editar' %}">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'GVS:beneficio_delete' beneficio.pk %}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       data-bs-toggle="tooltip"
+                                       title="{% trans 'Eliminar' %}">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="fas fa-info-circle me-2"></i>{% trans "No se encontraron beneficios registrados" %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if is_paginated %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Inicializar tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+})
+</script>
+{% endblock %}

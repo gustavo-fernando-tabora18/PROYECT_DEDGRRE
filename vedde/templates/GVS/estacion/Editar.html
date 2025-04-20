@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Estación{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0"><i class="fas fa-gas-pump me-2"></i>Editar Estación</h2>
+        </div>
+        
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="row g-4">
+                    <!-- Columna Izquierda -->
+                    <div class="col-md-6">
+                        <!-- Campo Empresa -->
+                        <div class="mb-4">
+                            <label for="{{ form.empresa.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-building me-2"></i>Empresa
+                            </label>
+                            <div class="input-group">
+                                {{ form.empresa }}
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmpresaModal">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            {% if form.empresa.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.empresa.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo Nombre -->
+                        <div class="mb-4">
+                            <label for="{{ form.nombre.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-signature me-2"></i>Nombre
+                            </label>
+                            {{ form.nombre }}
+                            <div class="invalid-feedback">
+                                Por favor ingrese un nombre válido
+                            </div>
+                        </div>
+
+                        <!-- Campo Ubicación -->
+                        <div class="mb-4">
+                            <label for="{{ form.ubicacion.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-map-marker-alt me-2"></i>Ubicación
+                            </label>
+                            {{ form.ubicacion }}
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha -->
+                    <div class="col-md-6">
+                        <!-- Campo Abanderado -->
+                        <div class="mb-4">
+                            <label for="{{ form.abanderado.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-user-tie me-2"></i>Abanderado
+                            </label>
+                            <div class="input-group">
+                                {{ form.abanderado }}
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAbanderadoModal">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Campo Correo -->
+                        <div class="mb-4">
+                            <label for="{{ form.correo_electronico.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-envelope me-2"></i>Correo Electrónico
+                            </label>
+                            {{ form.correo_electronico }}
+                        </div>
+
+                        <!-- Campo Teléfono -->
+                        <div class="mb-4">
+                            <label for="{{ form.telefono.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-phone me-2"></i>Teléfono
+                            </label>
+                            {{ form.telefono }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-end gap-3 mt-5">
+                    <a href="{% url 'GVS:estacion_list' %}" class="btn btn-lg btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-lg btn-primary">
+                        <i class="fas fa-save me-2"></i>Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Añadir Empresa -->
+<div class="modal fade" id="addEmpresaModal" tabindex="-1" aria-labelledby="addEmpresaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addEmpresaModalLabel"><i class="fas fa-building me-2"></i>Añadir Nueva Empresa</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="empresaForm" method="post" action="{% url 'GVS:empresa_create' %}">
+                    {% csrf_token %}
+                    {{ empresa_form.as_p }}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cerrar
+                </button>
+                <button type="submit" form="empresaForm" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Añadir Abanderado -->
+<div class="modal fade" id="addAbanderadoModal" tabindex="-1" aria-labelledby="addAbanderadoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addAbanderadoModalLabel"><i class="fas fa-user-tie me-2"></i>Añadir Nuevo Abanderado</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="abanderadoForm" method="post" action="{% url 'GVS:abanderado_create' %}">
+                    {% csrf_token %}
+                    {{ abanderado_form.as_p }}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cerrar
+                </button>
+                <button type="submit" form="abanderadoForm" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenedor para notificaciones Toast -->
+<div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100"></div>
+
+<style>
+    .form-control, .form-select {
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        border-bottom: 0;
+    }
+    
+    .invalid-feedback {
+        font-size: 0.9em;
+    }
+    
+    label.form-label {
+        color: #495057;
+    }
+    
+    .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Función para mostrar notificaciones
+    function showToast(message, type = 'success') {
+        const toastContainer = document.getElementById('toastContainer');
+        const toastHTML = `
+            <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+        toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+        const toastElement = new bootstrap.Toast(toastContainer.lastElementChild, {
+            autohide: true,
+            delay: 3000
+        });
+        toastElement.show();
+    }
+
+    // Función para actualizar los selectores
+    function updateSelectOptions(selectId, newOption) {
+        const select = document.getElementById(selectId);
+        
+        // Verificar si la opción ya existe
+        let optionExists = false;
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].value == newOption.id) {
+                optionExists = true;
+                select.options[i].selected = true;
+                break;
+            }
+        }
+        
+        // Si no existe, añadirla
+        if (!optionExists) {
+            const option = document.createElement('option');
+            option.value = newOption.id;
+            option.text = newOption.nombre;
+            option.selected = true;
+            select.add(option);
+        }
+        
+        // Si hay algún plugin de select, actualizarlo
+        if (typeof $(select).selectpicker === 'function') {
+            $(select).selectpicker('refresh');
+        }
+    }
+
+    // Validación de formularios
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+
+    // Manejar el envío del formulario de Empresa
+    const empresaForm = document.getElementById('empresaForm');
+    if (empresaForm) {
+        empresaForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Guardando...';
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateSelectOptions('id_empresa', data.empresa);
+                    showToast('Empresa agregada correctamente');
+                    bootstrap.Modal.getInstance(document.getElementById('addEmpresaModal')).hide();
+                    this.reset();
+                } else {
+                    showToast(data.error || 'Error al guardar la empresa', 'danger');
+                }
+            })
+            .catch(error => {
+                showToast('Error de conexión', 'danger');
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar';
+            });
+        });
+    }
+
+    // Manejar el envío del formulario de Abanderado
+    const abanderadoForm = document.getElementById('abanderadoForm');
+    if (abanderadoForm) {
+        abanderadoForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Guardando...';
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateSelectOptions('id_abanderado', data.abanderado);
+                    showToast('Abanderado agregado correctamente');
+                    bootstrap.Modal.getInstance(document.getElementById('addAbanderadoModal')).hide();
+                    this.reset();
+                } else {
+                    showToast(data.error || 'Error al guardar el abanderado', 'danger');
+                }
+            })
+            .catch(error => {
+                showToast('Error de conexión', 'danger');
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar';
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

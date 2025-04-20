@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Empleado{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4"><i class="fas fa-user-edit"></i> Editar Empleado: {{ object }}</h1>
+
+    <form method="post" id="mainForm" action="{% url 'GVS:empleado_update' object.pk %}" novalidate>
+        {% csrf_token %}
+        
+        <!-- Sección Solicitante (Solo lectura) -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-user"></i> Datos del Solicitante
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Solicitante</label>
+                            <input type="text" 
+                                   class="form-control-plaintext" 
+                                   value="{{ object.solicitante.nombre }} ({{ object.solicitante.dni }})" 
+                                   readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección Empleado -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-briefcase"></i> Datos del Empleado
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Columna Izquierda -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Empresa*</label>
+                            <div class="input-group">
+                                <select name="empresa" 
+                                        id="id_empresa" 
+                                        class="form-control selectpicker {% if form.empresa.errors %}is-invalid{% endif %}" 
+                                        data-live-search="true"
+                                        title="Seleccione una empresa..."
+                                        required>
+                                    {% for choice in form.empresa.field.choices %}
+                                        <option value="{{ choice.0 }}" 
+                                            {% if choice.0|stringformat:"s" == form.empresa.value|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" 
+                                        class="btn btn-outline-info" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#addEmpresaModal">
+                                    <i class="fas fa-plus"></i> Nueva
+                                </button>
+                            </div>
+                            {% if form.empresa.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.empresa.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Fecha Contratación*</label>
+                            <input type="date" 
+                                   name="fecha_contratacion" 
+                                   id="id_fecha_contratacion" 
+                                   class="form-control {% if form.fecha_contratacion.errors %}is-invalid{% endif %}"
+                                   value="{{ form.fecha_contratacion.value|date:'Y-m-d' }}"
+                                   required>
+                            {% if form.fecha_contratacion.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.fecha_contratacion.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Contrato*</label>
+                            <select name="tipo_contrato" 
+                                    id="id_tipo_contrato" 
+                                    class="form-control {% if form.tipo_contrato.errors %}is-invalid{% endif %}"
+                                    required>
+                                {% for choice in form.tipo_contrato.field.choices %}
+                                    <option value="{{ choice.0 }}" 
+                                        {% if choice.0|stringformat:"s" == form.tipo_contrato.value|stringformat:"s" %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.tipo_contrato.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.tipo_contrato.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Estado*</label>
+                            <select name="status" 
+                                    id="id_status" 
+                                    class="form-control {% if form.status.errors %}is-invalid{% endif %}"
+                                    required>
+                                {% for choice in form.status.field.choices %}
+                                    <option value="{{ choice.0 }}" 
+                                        {% if choice.0|stringformat:"s" == form.status.value|stringformat:"s" %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.status.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.status.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Comentarios del Estado</label>
+                            <textarea name="comentario_status" 
+                                      id="id_comentario_status" 
+                                      class="form-control {% if form.comentario_status.errors %}is-invalid{% endif %}" 
+                                      rows="3">{{ form.comentario_status.value|default_if_none:'' }}</textarea>
+                            {% if form.comentario_status.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.comentario_status.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+            <a href="{% url 'GVS:empleado_list' %}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+{% include 'GVS/modales/empleado/crear_empresa_modal.html' %}
+
+<div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const toastContainer = document.getElementById('toastContainer');
+
+    // Función para mostrar notificaciones
+    function showToast(message, type = 'success', duration = 5000) {
+        const toastEl = document.createElement('div');
+        toastEl.className = `toast align-items-center text-white bg-${type} border-0`;
+        toastEl.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'} me-2"></i>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        toastContainer.appendChild(toastEl);
+        new bootstrap.Toast(toastEl, { delay: duration }).show();
+        setTimeout(() => toastEl.remove(), duration + 1000);
+    }
+
+    // Función para actualizar select de empresas
+    function updateSelect(selectId, newItem) {
+        const select = document.getElementById(selectId);
+        const optionText = `${newItem.nombre} (${newItem.telefono})`;
+        const newOption = new Option(optionText, newItem.id, true, true);
+        select.add(newOption);
+        
+        if (typeof $.fn.selectpicker !== 'undefined') {
+            $(select).selectpicker('refresh');
+            $(select).selectpicker('val', newItem.id);
+        }
+    }
+
+    // Manejador para modal de empresa
+    document.getElementById('empresaForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Guardando...`;
+
+        try {
+            const formData = new FormData(form);
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                updateSelect('id_empresa', data.empresa);
+                bootstrap.Modal.getInstance(form.closest('.modal')).hide();
+                form.reset();
+                showToast('Empresa creada exitosamente');
+            } else {
+                const errors = Object.entries(data.errors || {}).map(([field, msgs]) => 
+                    `<strong>${field}:</strong> ${msgs.join(', ')}`
+                ).join('<br>');
+                showToast(errors || 'Error desconocido', 'danger');
+            }
+        } catch (error) {
+            showToast('Error de conexión: ' + error.message, 'danger');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
+
+    // Manejador principal del formulario
+    document.getElementById('mainForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Guardando...`;
+
+        try {
+            const formData = new FormData(form);
+
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: { 
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                window.location.href = data.redirect_url || "{% url 'GVS:empleado_list' %}";
+            } else {
+                form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+                Object.entries(data.errors || {}).forEach(([field, errors]) => {
+                    const input = form.querySelector(`[name="${field}"]`);
+                    if (input) {
+                        input.classList.add('is-invalid');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback';
+                        errorDiv.innerHTML = errors.join('<br>');
+                        input.parentNode.appendChild(errorDiv);
+                    }
+                });
+                showToast('Corrija los errores en el formulario', 'danger', 8000);
+            }
+        } catch (error) {
+            showToast('Error de conexión: ' + error.message, 'danger');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
+
+    // Inicializar selectpickers
+    if (typeof $.fn.selectpicker === 'function') {
+        $('.selectpicker').selectpicker({
+            liveSearch: true,
+            style: 'btn-light',
+            actionsBox: true,
+            selectedTextFormat: 'count > 3'
+        });
+    }
+});
+</script>
+{% endblock %}

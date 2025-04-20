@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        {% trans "Editar Vacante" %}
+    {% else %}
+        {% trans "Crear Vacante" %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow-lg">
+        <div class="card-header {% if form.instance.pk %}bg-warning text-dark{% else %}bg-success text-white{% endif %} d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">
+                {% if form.instance.pk %}
+                    {% trans "Editar Vacante" %}
+                {% else %}
+                    {% trans "Crear Vacante" %}
+                {% endif %}
+            </h3>
+            <a href="{% url 'GVS:vacante_list' %}" class="btn btn-light btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>{% trans "Volver al listado" %}
+            </a>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                <!-- Campo Empresa con botón para agregar nueva -->
+                <div class="mb-3">
+                    <label for="{{ form.empresa.id_for_label }}" class="form-label">{% trans "Empresa" %}</label>
+                    <div class="input-group">
+                        {{ form.empresa }}
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addEmpresaModal">
+                            <i class="fas fa-plus"></i> {% trans "Agregar" %}
+                        </button>
+                    </div>
+                    {% if form.empresa.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.empresa.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Campo Estación con botón para agregar nueva -->
+                <div class="mb-3">
+                    <label for="{{ form.estacion.id_for_label }}" class="form-label">{% trans "Estación" %}</label>
+                    <div class="input-group">
+                        {{ form.estacion }}
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addEstacionModal">
+                            <i class="fas fa-plus"></i> {% trans "Agregar" %}
+                        </button>
+                    </div>
+                    {% if form.estacion.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.estacion.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Renderizado del resto de campos -->
+                {% for field in form %}
+                    {% if field.name != 'empresa' and field.name != 'estacion' %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="card-footer bg-light">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn {% if form.instance.pk %}btn-warning{% else %}btn-success{% endif %}">
+                        <i class="fas fa-save me-2"></i>{% trans "Guardar" %}
+                    </button>
+                    <a href="{% url 'GVS:vacante_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Añadir Empresa -->
+<div class="modal fade" id="addEmpresaModal" tabindex="-1" aria-labelledby="addEmpresaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addEmpresaModalLabel">{% trans "Añadir Nueva Empresa" %}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{% trans 'Cerrar' %}"></button>
+            </div>
+            <div class="modal-body">
+                <form id="empresaForm" method="post" action="{% url 'GVS:empresa_create' %}">
+                    {% csrf_token %}
+                    {{ empresa_form.as_p }}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cerrar" %}</button>
+                <button type="submit" form="empresaForm" class="btn btn-primary">{% trans "Guardar" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Añadir Estación -->
+<div class="modal fade" id="addEstacionModal" tabindex="-1" aria-labelledby="addEstacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addEstacionModalLabel">{% trans "Añadir Nueva Estación" %}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{% trans 'Cerrar' %}"></button>
+            </div>
+            <div class="modal-body">
+                <form id="estacionForm" method="post" action="{% url 'GVS:estacion_create' %}">
+                    {% csrf_token %}
+                    {{ estacion_form.as_p }}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cerrar" %}</button>
+                <button type="submit" form="estacionForm" class="btn btn-primary">{% trans "Guardar" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenedor para notificaciones Toast -->
+<div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function showToast(message, type = 'success') {
+        const toastContainer = document.getElementById('toastContainer');
+        const toastHTML = `
+            <div class="toast align-items-center text-white bg-${type} border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        `;
+        toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+        $('.toast').toast('show');
+    }
+
+    function updateSelect(selectId, newItem) {
+        const select = $(`#${selectId}`);
+        
+        if (!select.find(`option[value="${newItem.id}"]`).length) {
+            const option = new Option(newItem.nombre || newItem.text, newItem.id, true, true);
+            select.append(option).trigger('change');
+            select.selectpicker?.('refresh');
+        } else {
+            select.val(newItem.id).trigger('change');
+        }
+    }
+
+    function handleFormSubmission(formId, selectId, modalId, url) {
+        $(formId).on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const submitBtn = form.find('button[type="submit"]');
+
+            submitBtn.prop('disabled', true).html('{% trans "Guardando..." %}');
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: form.serialize(),
+                dataType: 'json',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                success: function(data) {
+                    if (data.success) {
+                        updateSelect(selectId, data.empresa || data.estacion);
+                        showToast('{% trans "Guardado correctamente" %}');
+                        $(modalId).modal('hide');
+                        form.trigger('reset');
+                    } else {
+                        showToast(data.error || '{% trans "Error al guardar" %}', 'danger');
+                    }
+                },
+                error: function(xhr) {
+                    showToast('{% trans "Error de conexión" %}', 'danger');
+                },
+                complete: function() {
+                    submitBtn.prop('disabled', false).html('{% trans "Guardar" %}');
+                }
+            });
+        });
+    }
+
+    // Configurar los formularios de los modales
+    handleFormSubmission('#empresaForm', 'id_empresa', '#addEmpresaModal', $('#empresaForm').attr('action'));
+    handleFormSubmission('#estacionForm', 'id_estacion', '#addEstacionModal', $('#estacionForm').attr('action'));
+
+    // Inicializar selectores con búsqueda
+    $('.selectpicker').selectpicker();
+});
+</script>
+{% endblock %}

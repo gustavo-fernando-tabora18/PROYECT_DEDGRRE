@@ -1,0 +1,187 @@
+<!-- GVS/beneficio/editar.html -->
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Editar Beneficio" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow-lg">
+        <div class="card-header bg-warning text-dark">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-edit me-2"></i>{% trans "Actualizar Beneficio" %}
+            </h3>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Mostrar errores del formulario -->
+            {% if form.errors %}
+            <div class="alert alert-danger mx-3 mt-3">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                {% trans "¡Corrige los siguientes errores!" %}
+                <ul class="mt-2 mb-0">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Campo Empleado (solo lectura) -->
+                     <!-- Campo oculto para empleado -->
+            {{ form.empleado }}
+            
+            <!-- Sección de información del empleado -->
+            <div class="card-body border-bottom">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">{% trans "Empleado" %}:</dt>
+                            <dd class="col-sm-8">{{ object.empleado.solicitante.nombre }}</dd>
+                            
+                            <dt class="col-sm-4">{% trans "Empresa" %}:</dt>
+                            <dd class="col-sm-8">{{ object.empleado.empresa }}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">{% trans "Contratación" %}:</dt>
+                            <dd class="col-sm-8">{{ object.empleado.fecha_contratacion|date:"d/m/Y" }}</dd>
+                            
+                            <dt class="col-sm-4">{% trans "Estado" %}:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-{% if object.empleado.status == 'Activo' %}success{% else %}danger{% endif %}">
+                                    {{ object.empleado.get_status_display }}
+                                </span>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+                    <!-- Campos de Días -->
+                    <div class="col-md-3">
+                        <div class="card h-100 border-primary">
+                            <div class="card-header bg-primary text-white">
+                                {% trans "Días Base" %}
+                            </div>
+                            <div class="card-body">
+                                <div class="form-floating">
+                                    {{ form.dias_base }}
+                                    <label for="{{ form.dias_base.id_for_label }}">{{ form.dias_base.label }}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card h-100 border-info">
+                            <div class="card-header bg-info text-white">
+                                {% trans "Días Adicionales" %}
+                            </div>
+                            <div class="card-body">
+                                <div class="form-floating">
+                                    <input type="number" 
+                                           class="form-control-plaintext bg-light" 
+                                           value="{{ object.dias_adicionales }}" 
+                                           readonly>
+                                    <label>{% trans "Días Adicionales" %}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card h-100 border-warning">
+                            <div class="card-header bg-warning text-dark">
+                                {% trans "Días Usados" %}
+                            </div>
+                            <div class="card-body">
+                                <div class="form-floating">
+                                    {{ form.dias_tomados }}
+                                    <label for="{{ form.dias_tomados.id_for_label }}">{{ form.dias_tomados.label }}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card h-100 border-secondary">
+                            <div class="card-header bg-secondary text-white">
+                                {% trans "Saldo Disponible" %}
+                            </div>
+                            <div class="card-body">
+                                <div class="form-floating">
+                                    <input type="number" 
+                                           class="form-control-plaintext bg-light" 
+                                           id="saldo_disponible"
+                                           value="{{ object.saldo_disponible }}" 
+                                           readonly>
+                                    <label>{% trans "Días Restantes" %}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-light">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-warning btn-lg">
+                        <i class="fas fa-save me-2"></i>{% trans "Actualizar Beneficio" %}
+                    </button>
+                    <a href="{% url 'GVS:beneficio_list' %}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cálculo en tiempo real del saldo
+    function actualizarSaldo() {
+        const base = parseInt(document.getElementById('id_dias_base').value) || 0;
+        const adicionales = parseInt("{{ object.dias_adicionales }}") || 0;
+        const tomados = parseInt(document.getElementById('id_dias_tomados').value) || 0;
+        const saldo = (base + adicionales) - tomados;
+        
+        // Actualizar campo y colores
+        const saldoField = document.getElementById('saldo_disponible');
+        saldoField.value = saldo;
+        
+        if (saldo < 0) {
+            saldoField.classList.add('text-danger', 'fw-bold');
+            saldoField.classList.remove('text-success');
+        } else {
+            saldoField.classList.add('text-success');
+            saldoField.classList.remove('text-danger', 'fw-bold');
+        }
+    }
+
+    // Event listeners
+    document.getElementById('id_dias_base').addEventListener('input', actualizarSaldo);
+    document.getElementById('id_dias_tomados').addEventListener('input', actualizarSaldo);
+    
+    // Ejecutar al cargar
+    actualizarSaldo();
+});
+</script>
+
+<style>
+.text-danger { color: #dc3545 !important; }
+.text-success { color: #28a745 !important; }
+.fw-bold { font-weight: 600 !important; }
+</style>
+{% endblock %}

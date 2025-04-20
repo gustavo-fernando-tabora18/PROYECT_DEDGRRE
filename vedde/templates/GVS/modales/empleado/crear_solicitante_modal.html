@@ -1,0 +1,75 @@
+<div class="modal fade" id="addSolicitanteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Nuevo Solicitante</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="solicitanteForm" method="post" action="{% url 'GVS:solicitante_create' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Columna Izquierda -->
+                            <div class="mb-3">
+                                <label class="form-label">DNI</label>
+                                {{ solicitante_form.dni }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nombre Completo</label>
+                                {{ solicitante_form.nombre }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de Nacimiento</label>
+                                {{ solicitante_form.fecha_nacimiento }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Género</label>
+                                {{ solicitante_form.genero }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Columna Derecha -->
+                            <div class="mb-3">
+                                <label class="form-label">Teléfono</label>
+                                {{ solicitante_form.telefono }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Correo Electrónico</label>
+                                {{ solicitante_form.correo_electronico }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Edad</label>
+                                {{ solicitante_form.edad }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">CV</label>
+                                {{ solicitante_form.cv }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Foto</label>
+                                {{ solicitante_form.foto }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label">Dirección</label>
+                                {{ solicitante_form.direccion }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Vacante</label>
+                                {{ solicitante_form.vacante }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

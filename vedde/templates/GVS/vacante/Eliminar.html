@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Vacante{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card border-danger shadow-lg">
+        <div class="card-header bg-danger text-white">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+            </h3>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">¡Advertencia!</h4>
+                    <p>
+                        Estás a punto de eliminar permanentemente la vacante <strong>{{ object.nombre }}</strong>.
+                        Esta acción no se puede deshacer y eliminará todos los registros relacionados con esta vacante.
+                    </p>
+                </div>
+
+                <dl class="row">
+                    <dt class="col-sm-3">Puesto:</dt>
+                    <dd class="col-sm-9">{{ object.nombre }}</dd>
+
+                    <dt class="col-sm-3">Empresa:</dt>
+                    <dd class="col-sm-9">{{ object.empresa }}</dd>
+
+                    <dt class="col-sm-3">Estación:</dt>
+                    <dd class="col-sm-9">{{ object.estacion }}</dd>
+
+
+                </dl>
+            </div>
+
+            <div class="card-footer bg-light">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-danger btn-lg">
+                        <i class="fas fa-trash-alt me-2"></i>Eliminar Definitivamente
+                    </button>
+                    <a href="{% url 'GVS:vacante_list' %}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

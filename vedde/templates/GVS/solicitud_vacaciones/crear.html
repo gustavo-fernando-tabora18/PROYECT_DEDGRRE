@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Crear Solicitud" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow-lg">
+        <div class="card-header bg-success text-white">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-calendar-plus me-2"></i>{% trans "Nueva Solicitud de Vacaciones" %}
+            </h3>
+        </div>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Empleado" %}</label>
+                            {{ form.empleado }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Fecha Inicio" %}</label>
+                            {{ form.fecha_inicio }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Fecha Fin" %}</label>
+                            {{ form.fecha_fin }}
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {% trans "Días solicitados calculados automáticamente" %}
+                    <span id="dias-calculados" class="badge bg-primary ms-2">0</span>
+                </div>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-paper-plane me-2"></i>{% trans "Enviar Solicitud" %}
+                    </button>
+                    <a href="{% url 'GVS:solicitud_vacaciones_list' %}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fechaInicio = document.getElementById('id_fecha_inicio');
+    const fechaFin = document.getElementById('id_fecha_fin');
+    const diasCalculados = document.getElementById('dias-calculados');
+
+    function calcularDias() {
+        if(fechaInicio.value && fechaFin.value) {
+            const inicio = new Date(fechaInicio.value);
+            const fin = new Date(fechaFin.value);
+            
+            if(inicio > fin) {
+                diasCalculados.textContent = '❌';
+                return;
+            }
+            
+            const diff = fin.getTime() - inicio.getTime();
+            const dias = Math.floor(diff / (1000 * 3600 * 24)) + 1;
+            diasCalculados.textContent = dias;
+        }
+    }
+
+    fechaInicio.addEventListener('change', calcularDias);
+    fechaFin.addEventListener('change', calcularDias);
+});
+</script>
+{% endblock %}

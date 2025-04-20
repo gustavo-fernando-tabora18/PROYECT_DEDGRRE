@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Gestión de Solicitudes de Vacaciones" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">
+                <i class="fas fa-sun me-2"></i>{% trans "Solicitudes de Vacaciones" %}
+            </h3>
+            <a href="{% url 'GVS:solicitud_vacaciones_create' %}" class="btn btn-light btn-sm">
+                <i class="fas fa-plus-circle me-2"></i>{% trans "Nueva Solicitud" %}
+            </a>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>{% trans "Empleado" %}</th>
+                            <th>{% trans "Período" %}</th>
+                            <th>{% trans "Días" %}</th>
+                            <th>{% trans "Estado" %}</th>
+                            <th class="text-end">{% trans "Acciones" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for solicitud in solicitudes %}
+                        <tr>
+                            <td class="fw-bold">{{ forloop.counter }}</td>
+                            <td>
+                                <span class="d-block text-truncate" style="max-width: 200px;" 
+                                      data-bs-toggle="tooltip" title="{{ solicitud.empleado }}">
+                                    {{ solicitud.empleado.solicitante.nombre }}
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted">Del</small> {{ solicitud.fecha_inicio|date:"d/m/Y" }}<br>
+                                <small class="text-muted">al</small> {{ solicitud.fecha_fin|date:"d/m/Y" }}
+                            </td>
+                            <td class="fw-bold">{{ solicitud.dias_solicitados }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if solicitud.estado == 'APROBADA' %}bg-success
+                                    {% elif solicitud.estado == 'RECHAZADA' %}bg-danger
+                                    {% else %}bg-warning{% endif %}">
+                                    {{ solicitud.get_estado_display }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group">
+                                    <a href="{% url 'GVS:solicitud_vacaciones_update' solicitud.pk %}" 
+                                       class="btn btn-outline-warning btn-sm" 
+                                       data-bs-toggle="tooltip" 
+                                       title="{% trans 'Editar Estado' %}"
+                                       {% if solicitud.estado == 'APROBADA' %}disabled{% endif %}>
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'GVS:solicitud_vacaciones_delete' solicitud.pk %}" 
+                                       class="btn btn-outline-danger btn-sm" 
+                                       data-bs-toggle="tooltip" 
+                                       title="{% trans 'Eliminar Solicitud' %}"
+                                       {% if solicitud.estado == 'APROBADA' %}disabled{% endif %}>
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="fas fa-info-circle me-2"></i>{% trans "No hay solicitudes registradas" %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if is_paginated %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

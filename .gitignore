@@ -1,0 +1,21 @@
+# Entorno virtual
+venv/
+
+# Cachés de Python
+__pycache__/
+*.py[cod]
+
+# Base de datos local
+db.sqlite3
+
+# Archivos sensibles
+*.env
+
+# Logs y editores
+*.log
+.vscode/
+.idea/
+
+# Archivos estáticos generados
+staticfiles/
+media/

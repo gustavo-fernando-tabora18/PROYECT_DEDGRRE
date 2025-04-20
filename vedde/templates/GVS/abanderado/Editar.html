@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Editar Abanderado" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow-lg">
+        <div class="card-header bg-success text-white">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-user-plus me-2"></i>{% trans "Editar Abanderado" %}
+            </h3>
+        </div>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="card-body">
+                {{ form.as_p }}
+            </div>
+            <div class="card-footer bg-light">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save me-2"></i>{% trans "Guardar" %}
+                    </button>
+                    <a href="{% url 'GVS:abanderado_list' %}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

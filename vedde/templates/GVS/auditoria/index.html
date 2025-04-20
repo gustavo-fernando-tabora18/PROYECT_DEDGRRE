@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load i18n param_replace %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">{% trans "Registros de Auditoría" %}</h1>
+    
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get">
+                <div class="row g-3 align-items-end">
+                    <!-- Búsqueda General -->
+                    <div class="col-md-2">
+                        <input type="text" name="q" class="form-control" 
+                               placeholder="{% trans 'Buscar...' %}" 
+                               value="{{ current_search.q }}">
+                    </div>
+                    
+                    <!-- Filtro por Modelo -->
+                    <div class="col-md-2">
+                        <select name="modelo" class="form-select">
+                            <option value="">{% trans "Todos los modelos" %}</option>
+                            {% for modelo in modelos_disponibles %}
+                            <option value="{{ modelo }}" {% if current_search.modelo == modelo %}selected{% endif %}>
+                                {{ modelo }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Filtro por Acción -->
+                    <div class="col-md-2">
+                        <select name="accion" class="form-select">
+                            <option value="">{% trans "Todas las acciones" %}</option>
+                            {% for key, value in acciones_disponibles.items %}
+                            <option value="{{ key }}" {% if current_search.accion == key %}selected{% endif %}>
+                                {{ value }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Filtro por Usuario -->
+                    <div class="col-md-2">
+                        <select name="usuario" class="form-select">
+                            <option value="">{% trans "Todos los usuarios" %}</option>
+                            {% for usuario in usuarios_disponibles %}
+                            <option value="{{ usuario.username }}" {% if current_search.usuario == usuario.username %}selected{% endif %}>
+                                {{ usuario.username }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Filtro por Fechas -->
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <input type="date" name="fecha_inicio" 
+                                   class="form-control" 
+                                   value="{{ current_search.fecha_inicio }}"
+                                   placeholder="{% trans 'Desde' %}">
+                            <span class="input-group-text">-</span>
+                            <input type="date" name="fecha_fin" 
+                                   class="form-control" 
+                                   value="{{ current_search.fecha_fin }}"
+                                   placeholder="{% trans 'Hasta' %}">
+                        </div>
+                    </div>
+                    
+                    <!-- Botones -->
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-primary w-100" title="{% trans 'Filtrar' %}">
+                            <i class="bi bi-funnel"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Resultados -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>{% trans "Fecha" %}</th>
+                            <th>{% trans "Usuario" %}</th>
+                            <th>{% trans "Acción" %}</th>
+                            <th>{% trans "Modelo" %}</th>
+                            <th>{% trans "ID Objeto" %}</th>
+                            <th>{% trans "IP" %}</th>
+                            <th>{% trans "Detalles" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registro in registros %}
+                        <tr>
+                            <td>{{ registro.fecha|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if registro.usuario %}
+                                    {{ registro.usuario.username }}
+                                {% else %}
+                                    <span class="text-muted">{% trans "Sistema" %}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if registro.accion == 'C' %}bg-success
+                                    {% elif registro.accion == 'A' %}bg-primary
+                                    {% elif registro.accion == 'E' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ registro.get_accion_display }}
+                                </span>
+                            </td>
+                            <td>{{ registro.modelo_afectado }}</td>
+                            <td>
+                                {% if registro.id_objeto %}
+                                <a href="#" class="object-link" 
+                                   data-model="{{ registro.modelo_afectado|lower }}" 
+                                   data-id="{{ registro.id_objeto }}">
+                                    {{ registro.id_objeto }}
+                                </a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>{{ registro.ip|default:"-" }}</td>
+                            <td>
+                                <a href="{% url 'GVS:auditoria_detail' registro.id %}" 
+                                   class="btn btn-sm btn-info">
+                                    <i class="bi bi-zoom-in"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                {% trans "No se encontraron registros con los filtros actuales" %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginación -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% param_replace page=1 %}">
+                            &laquo; {% trans "Primera" %}
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?{% param_replace page=page_obj.previous_page_number %}">
+                            {% trans "Anterior" %}
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">
+                            {% blocktrans with num=page_obj.number pages=page_obj.paginator.num_pages %}
+                            Página {{ num }} de {{ pages }}
+                            {% endblocktrans %}
+                        </span>
+                    </li>
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% param_replace page=page_obj.next_page_number %}">
+                            {% trans "Siguiente" %}
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?{% param_replace page=page_obj.paginator.num_pages %}">
+                            {% trans "Última" %} &raquo;
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+document.querySelectorAll('.object-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const model = this.dataset.model;
+        const id = this.dataset.id;
+        
+        const urlMap = {
+            'user': `/admin/auth/user/${id}/change/`,
+            'empresa': `/admin/empresa/empresa/${id}/change/`,
+            'vacante': `/admin/vacantes/vacante/${id}/change/`,
+            'solicitante': `/admin/candidatos/solicitante/${id}/change/`
+        };
+        
+        const url = urlMap[model] || '#';
+        if(url !== '#') window.open(url, '_blank');
+    });
+});
+</script>
+{% endblock %}

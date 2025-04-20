@@ -1,0 +1,179 @@
+<!-- Modal para Nueva Vacante -->
+
+{% load i18n %}
+{% load static %}
+{% block styles %}
+
+<link rel="stylesheet" href="{% static 'css/solicitante.css' %}">
+{% endblock %}
+
+
+
+<div class="modal fade" id="vacanteModal" tabindex="-1" aria-labelledby="vacanteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-briefcase me-2"></i>{% trans "Nueva Vacante" %}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="vacanteForm" method="post" action="{% url 'GVS:vacante_create' %}">
+                    {% csrf_token %}
+                    
+                    <!-- Sección Principal -->
+                    <div class="row g-4">
+                        <!-- Columna Izquierda - Información Básica -->
+                        <div class="col-lg-6">
+                            <div class="card border-0 h-100">
+                                <div class="card-body">
+                                    <h6 class="mb-3 text-success fw-bold">
+                                        <i class="fas fa-info-circle me-2"></i>{% trans "Información Básica" %}
+                                    </h6>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <input type="text" name="nombre" class="form-control" placeholder=" " required>
+                                                <label>{% trans "Nombre de la Vacante" %} *</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="number" name="numero_vacantes" class="form-control" min="1" placeholder=" " required>
+                                                <label>{% trans "Número de Vacantes" %} *</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="date" name="fecha_maxima_postulacion" class="form-control" placeholder=" " required>
+                                                <label>{% trans "Fecha Máxima Postulación" %} *</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <select name="modalidad" class="form-select" required>
+                                                    {% for choice in MODALIDAD_CHOICES %}
+                                                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <label>{% trans "Modalidad de Trabajo" %} *</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <select name="tipo_contrato" class="form-select" required>
+                                                    {% for choice in TIPO_CONTRATO_CHOICES %}
+                                                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <label>{% trans "Tipo de Contrato" %} *</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna Derecha - Detalles Adicionales -->
+                        <div class="col-lg-6">
+                            <div class="card border-0 h-100">
+                                <div class="card-body">
+                                    <h6 class="mb-3 text-success fw-bold">
+                                        <i class="fas fa-file-alt me-2"></i>{% trans "Detalles Adicionales" %}
+                                    </h6>
+
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="text" name="nivel_experiencia" class="form-control" placeholder=" " required>
+                                                <label>{% trans "Nivel de Experiencia" %} *</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="text" name="departamento" class="form-control" placeholder=" " required>
+                                                <label>{% trans "Departamento/Área" %} *</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="form-floating">
+                                                <input type="email" name="correo_contacto" class="form-control" placeholder=" " required>
+                                                <label>{% trans "Correo de Contacto" %} *</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="form-floating">
+                                                    <input type="text" name="categoria" class="form-control" placeholder=" " required>
+                                                    <label>{% trans "Categoría" %} *</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-floating">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">$</span>
+                                                        <input type="number" name="salario_ofrecido" class="form-control" step="0.01" placeholder=" " required>
+                                                    </div>
+                                                    <label>{% trans "Salario Ofrecido" %} *</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección Inferior - Descripción y Relaciones -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card border-0">
+                                <div class="card-body">
+                                    <h6 class="mb-3 text-success fw-bold">
+                                        <i class="fas fa-align-left me-2"></i>{% trans "Descripción Completa" %}
+                                    </h6>
+                                    
+                                    <div class="form-floating">
+                                        <textarea name="descripcion" class="form-control" style="height: 100px" placeholder=" " required></textarea>
+                                        <label>{% trans "Descripción Detallada de la Vacante" %} *</label>
+                                    </div>
+
+                                    <div class="row g-3 mt-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                {{ vacante_form.empresa }}
+                                                <label>{% trans "Empresa" %} *</label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                {{ vacante_form.estacion }}
+                                                <label>{% trans "Estación Asignada" %}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancelar" %}</button>
+                <button type="submit" form="vacanteForm" class="btn btn-success">
+                    <i class="fas fa-save me-2"></i>{% trans "Guardar Vacante" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

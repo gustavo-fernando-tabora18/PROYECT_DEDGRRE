@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Eliminar Empresa" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card border-danger shadow-lg">
+        <div class="card-header bg-danger text-white">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>{% trans "Confirmar Eliminación" %}
+            </h3>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">{% trans "¡Advertencia!" %}</h4>
+                    <p>
+                        {% blocktrans with nombre=object.nombre %}
+                        Estás a punto de eliminar permanentemente la empresa <strong>"{{ nombre }}"</strong>.
+                        Esta acción no se puede deshacer y eliminará todos los registros asociados.
+                        {% endblocktrans %}
+                    </p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-6">{% trans "Teléfono:" %}</dt>
+                            <dd class="col-sm-6">{{ object.telefono|default:"-" }}</dd>
+
+                            <dt class="col-sm-6">{% trans "Email:" %}</dt>
+                            <dd class="col-sm-6">
+                                {% if object.correo_electronico %}
+                                <a href="mailto:{{ object.correo_electronico }}" 
+                                   class="text-decoration-none link-danger">
+                                    {{ object.correo_electronico }}
+                                </a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-6">{% trans "Dirección:" %}</dt>
+                            <dd class="col-sm-6">{{ object.direccion|default:"-" }}</dd>
+
+                            <dt class="col-sm-6">{% trans "Fecha Registro:" %}</dt>
+                            <dd class="col-sm-6">{{ object.fecha_registro|date:"SHORT_DATE_FORMAT" }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-light">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-danger btn-lg">
+                        <i class="fas fa-trash-alt me-2"></i>{% trans "Eliminar Definitivamente" %}
+                    </button>
+                    <a href="{% url 'GVS:empresa_list' %}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

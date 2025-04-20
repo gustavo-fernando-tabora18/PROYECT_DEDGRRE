@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block title %}
+{% trans "Detalle del Solicitante" %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="h5 mb-0">{% trans "Perfil del Solicitante" %}</h3>
+                </div>
+                <div class="card-body text-center">
+                    {% if solicitante.foto %}
+                        <img src="{{ solicitante.foto.url }}" alt="{% trans 'Foto del Solicitante' %}" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div class="placeholder rounded-circle bg-secondary mb-3" style="width: 150px; height: 150px;"></div>
+                    {% endif %}
+                    <h4>{{ solicitante.nombre }}</h4>
+                    <p class="text-muted">{{ solicitante.dni }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h5 mb-0">{% trans "Información Personal" %}</h3>
+                </div>
+                <div class="card-body">
+                    <p><strong>{% trans "DNI:" %}</strong> {{ solicitante.dni }}</p>
+                    <p><strong>{% trans "Nombre Completo:" %}</strong> {{ solicitante.nombre }}</p>
+                    <p><strong>{% trans "Fecha de Nacimiento:" %}</strong> {{ solicitante.fecha_nacimiento|date:"d/m/Y" }}</p>
+                    <p><strong>{% trans "Género:" %}</strong> {{ solicitante.get_genero_display }}</p>
+                    <p><strong>{% trans "Edad:" %}</strong> {{ solicitante.edad }}</p>
+                    <p><strong>{% trans "Dirección:" %}</strong> {{ solicitante.direccion }}</p>
+                    <p><strong>{% trans "Vacante:" %}</strong> {{ solicitante.vacante }}</p>
+                </div>
+            </div>
+
+            <div class="card shadow-lg mt-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="h5 mb-0">{% trans "Contacto" %}</h3>
+                </div>
+                <div class="card-body">
+                    <p><strong>{% trans "Teléfono:" %}</strong> {{ solicitante.telefono }}</p>
+                    <p><strong>{% trans "Correo Electrónico:" %}</strong> {{ solicitante.correo_electronico }}</p>
+                </div>
+            </div>
+
+            <div class="card shadow-lg mt-4">
+                <div class="card-header bg-warning text-white">
+                    <h3 class="h5 mb-0">{% trans "Documentos" %}</h3>
+                </div>
+                <div class="card-body">
+                    <p><strong>{% trans "CV:" %}</strong> 
+                        <a href="{{ solicitante.cv.url }}" target="_blank" class="btn btn-link">{% trans "Descargar CV" %}</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-4">
+        <a href="{% url 'GVS:solicitante_list' %}" class="btn btn-lg btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>{% trans "Regresar" %}
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Eliminar Empleado" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow-lg border-danger">
+        <div class="card-header bg-danger text-white">
+            <h3 class="mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                {% trans "Confirmar Eliminación" %}
+            </h3>
+        </div>
+        
+        <div class="card-body">
+            <div class="alert alert-warning" role="alert">
+                <h4 class="alert-heading">{% trans "¡Atención!" %}</h4>
+                <p>{% trans "Está a punto de eliminar permanentemente el siguiente empleado:" %}</p>
+                <hr>
+                <dl class="row">
+                    <dt class="col-sm-3">{% trans "Nombre" %}</dt>
+                    <dd class="col-sm-9">{{ object.solicitante.nombre }}</dd>
+
+                    <dt class="col-sm-3">{% trans "Empresa" %}</dt>
+                    <dd class="col-sm-9">{{ object.empresa }}</dd>
+
+                    <dt class="col-sm-3">{% trans "Estado" %}</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-{% if object.status == 'Activo' %}success{% elif object.status == 'Inactivo' %}danger{% else %}warning{% endif %}">
+                            {{ object.get_status_display }}
+                        </span>
+                    </dd>
+                </dl>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-danger {% if not puede_eliminar %}disabled{% endif %}" 
+                            {% if not puede_eliminar %}title="{% trans 'No se puede eliminar empleados activos' %}"{% endif %}>
+                        <i class="fas fa-trash-alt me-2"></i>{% trans "Confirmar Eliminación" %}
+                    </button>
+                    <a href="{% url 'GVS:empleado_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

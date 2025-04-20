@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+            <i class="fas fa-file-alt me-2"></i>Generar Nuevo Informe
+        </h4>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Campo Nombre -->
+            <div class="mb-3">
+                <label class="form-label">{{ form.nombre.label }}</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}
+                    <div class="text-danger small">{{ form.nombre.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Campo Formato -->
+            <div class="mb-3">
+                <label class="form-label">{{ form.formato.label }}</label>
+                {{ form.formato }}
+            </div>
+
+            <!-- Campo Modelo -->
+            <div class="mb-3">
+                <label class="form-label">{{ form.modelo.label }}</label>
+                {{ form.modelo }}
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-magic me-2"></i>Generar Informe
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

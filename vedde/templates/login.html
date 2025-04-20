@@ -1,0 +1,159 @@
+{% load static i18n %}
+
+<!DOCTYPE html>
+<html lang="es" class="h-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iniciar Sesión – SOLEST</title>
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+  <!-- Bootstrap Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+  >
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      min-height: 100vh;
+    }
+    .login-container {
+      max-width: 380px;
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    .login-container:hover {
+      transform: translateY(-5px);
+    }
+    .auth-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin: 0 auto 1.5rem;
+      display: block;
+    }
+  </style>
+</head>
+<body class="d-flex align-items-center h-100">
+  <div class="container">
+    <div class="login-container mx-auto p-4">
+      <img
+        src="{% static 'img/LOGO.png' %}"
+        alt="Logo SOLEST"
+        class="auth-logo"
+      >
+      <h1 class="h4 text-center mb-4">Bienvenido a SOLEST</h1>
+
+      {% if form.errors %}
+      <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div>
+          <strong>Error:</strong> Usuario o contraseña incorrectos
+        </div>
+      </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'GVS:login' %}" novalidate>
+        {% csrf_token %}
+
+        <!-- Usuario -->
+        <div class="mb-3">
+          <label for="id_username" class="form-label">
+            <i class="bi bi-person-fill me-1"></i>Nombre de usuario
+          </label>
+          <input
+            type="text"
+            name="username"
+            id="id_username"
+            class="form-control form-control-lg"
+            placeholder="usuario"
+            autocomplete="username"
+            required
+            value="{{ form.username.value|default_if_none:'' }}"
+          >
+          <div class="form-text">Ingresa tu nombre de usuario institucional</div>
+        </div>
+
+        <!-- Contraseña con ojo integrado -->
+        <div class="mb-4">
+          <label for="id_password" class="form-label">
+            <i class="bi bi-lock-fill me-1"></i>Contraseña
+          </label>
+          <div class="input-group input-group-lg">
+            <input
+              type="password"
+              name="password"
+              id="id_password"
+              class="form-control"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+              aria-describedby="togglePwdHelp"
+            >
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              id="togglePassword"
+              aria-label="{% trans 'Mostrar contraseña' %}"
+            >
+              <i class="bi bi-eye-slash"></i>
+            </button>
+          </div>
+          <div id="togglePwdHelp" class="form-text">
+            Haz clic en el icono para mostrar u ocultar la contraseña
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg w-100"
+          id="submitBtn"
+        >
+          <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+          Iniciar Sesión
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Toggle de contraseña
+    document
+      .getElementById('togglePassword')
+      .addEventListener('click', function() {
+        const pwd = document.getElementById('id_password');
+        const icon = this.querySelector('i');
+        const show = pwd.type === 'password';
+
+        pwd.type = show ? 'text' : 'password';
+        icon.classList.toggle('bi-eye');
+        icon.classList.toggle('bi-eye-slash');
+        this.setAttribute(
+          'aria-label',
+          show ? '{% trans "Ocultar contraseña" %}' : '{% trans "Mostrar contraseña" %}'
+        );
+      });
+
+    // Spinner en el botón de submit
+    document.querySelector('form').addEventListener('submit', function() {
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.querySelector('.spinner-border').classList.remove('d-none');
+    });
+
+    // Auto-focus al primer campo con error
+    window.addEventListener('DOMContentLoaded', () => {
+      const err = document.querySelector('.is-invalid');
+      if (err) err.focus();
+    });
+  </script>
+</body>
+</html>

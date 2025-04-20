@@ -1,0 +1,78 @@
+.card {
+    border-radius: 0.8rem;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+}
+
+.bg-primary-soft {
+    background-color: #e3f2fd;
+}
+
+.bg-info-soft {
+    background-color: #e0f7fa;
+}
+
+.bg-success-soft {
+    background-color: #e8f5e9;
+}
+
+.bg-warning-soft {
+    background-color: #fff3e0;
+}
+
+.file-upload-wrapper {
+    border: 2px dashed #dee2e6;
+    border-radius: 0.8rem;
+    padding: 1.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.file-upload-wrapper:hover {
+    border-color: #0d6efd;
+    background: rgba(13, 110, 253, 0.05);
+}
+
+.upload-prompt {
+    text-align: center;
+    color: #6c757d;
+    pointer-events: none;
+}
+
+input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.upload-preview {
+    width: 100%;
+    height: 150px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.upload-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.modal-content {
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.2);
+}
+
+.toast {
+    border-radius: 0.8rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}

@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        {% trans "Editar Vacante" %}
+    {% else %}
+        {% trans "Crear Vacante" %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow-lg">
+        <div class="card-header {% if form.instance.pk %}bg-warning text-dark{% else %}bg-success text-white{% endif %} py-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                <h1 class="h3 mb-0">
+                    {% if form.instance.pk %}
+                        {% trans "Editar Vacante" %}
+                    {% else %}
+                        {% trans "Crear Vacante" %}
+                    {% endif %}
+                </h1>
+                <a href="{% url 'GVS:vacante_list' %}" class="btn btn-light btn-sm flex-shrink-0">
+                    <i class="fas fa-arrow-left me-2"></i>{% trans "Volver al listado" %}
+                </a>
+            </div>
+        </div>
+        
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- Campos Empresa y Estación -->
+                    <div class="col-12">
+                        <div class="row g-4">
+                            <!-- Empresa -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.empresa.id_for_label }}" class="form-label fw-bold">
+                                        {% trans "Empresa" %} <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        {{ form.empresa }}
+                                        <button type="button" class="btn btn-outline-secondary" 
+                                                data-bs-toggle="modal" data-bs-target="#addEmpresaModal"
+                                                aria-label="{% trans 'Agregar nueva empresa' %}">
+                                            <i class="fas fa-plus me-1"></i>{% trans "Agregar" %}
+                                        </button>
+                                    </div>
+                                    {% if form.empresa.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.empresa.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Estación -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.estacion.id_for_label }}" class="form-label fw-bold">
+                                        {% trans "Estación" %} <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        {{ form.estacion }}
+                                        <button type="button" class="btn btn-outline-secondary" 
+                                                data-bs-toggle="modal" data-bs-target="#addEstacionModal"
+                                                aria-label="{% trans 'Agregar nueva estación' %}">
+                                            <i class="fas fa-plus me-1"></i>{% trans "Agregar" %}
+                                        </button>
+                                    </div>
+                                    {% if form.estacion.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.estacion.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resto de campos -->
+                    {% for field in form %}
+                        {% if field.name != 'empresa' and field.name != 'estacion' %}
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ field.id_for_label }}" class="form-label fw-bold">
+                                        {{ field.label }}
+                                        {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                    </label>
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ field.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="card-footer bg-light">
+                <div class="d-flex flex-column flex-md-row justify-content-end gap-3">
+                    <button type="submit" class="btn {% if form.instance.pk %}btn-warning{% else %}btn-success{% endif %} flex-grow-1 flex-md-grow-0">
+                        <i class="fas fa-save me-2"></i>{% trans "Guardar" %}
+                    </button>
+                    <a href="{% url 'GVS:vacante_list' %}" class="btn btn-outline-secondary flex-grow-1 flex-md-grow-0">
+                        <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modales (mantenidos pero mejorados) -->
+{% include 'GVS/modales/Vacante/empresa_modal.html' %}
+{% include 'GVS/modales/Vacante/estacion_modal.html' %}
+
+<!-- Toast -->
+<div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Función Toast mejorada
+    const showToast = (message, type = 'success', delay = 3000) => {
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type} border-0`;
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'} me-2"></i>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        document.getElementById('toastContainer').appendChild(toast);
+        new bootstrap.Toast(toast, { autohide: true, delay: delay }).show();
+    };
+
+    // Función de actualización de select mejorada
+    const updateSelect = (selectId, newItem) => {
+        const select = document.getElementById(selectId);
+        const existingOption = select.querySelector(`option[value="${newItem.id}"]`);
+        
+        if (!existingOption) {
+            const option = new Option(newItem.nombre || newItem.text, newItem.id, true, true);
+            select.add(option);
+        } else {
+            select.value = newItem.id;
+        }
+        
+        if (select.dataset.bsSelect) {
+            $(select).selectpicker('refresh');
+        }
+    };
+
+    // Configuración genérica de formularios modales
+    const setupModalForm = (formId, selectId, modalId) => {
+        const form = document.querySelector(formId);
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> {% trans "Guardando..." %}';
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateSelect(selectId, data[Object.keys(data)[1]]);
+                    showToast('{% trans "Guardado correctamente" %}');
+                    bootstrap.Modal.getInstance(document.querySelector(modalId)).hide();
+                    form.reset();
+                } else {
+                    showToast(data.error || '{% trans "Error al procesar la solicitud" %}', 'danger');
+                }
+            } catch (error) {
+                showToast('{% trans "Error de conexión" %}', 'danger');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '{% trans "Guardar" %}';
+            }
+        });
+    };
+
+    // Inicializar formularios modales
+    setupModalForm('#empresaForm', 'id_empresa', '#addEmpresaModal');
+    setupModalForm('#estacionForm', 'id_estacion', '#addEstacionModal');
+
+    // Inicializar validación de formulario
+    const forms = document.querySelectorAll('.needs-validation');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+
+    // Inicializar selectores con búsqueda
+    $('.selectpicker').selectpicker({
+        liveSearch: true,
+        style: 'btn-outline-secondary',
+        size: 10
+    });
+});
+</script>
+{% endblock %}
