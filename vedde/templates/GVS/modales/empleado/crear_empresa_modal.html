@@ -38,6 +38,41 @@
                     </button>
                 </div>
             </form>
+            <script>
+                document.getElementById('empresaForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Guardando...`;
+
+                    try {
+                        const formData = new FormData(form);
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': '{{ csrf_token }}', 'X-Requested-With': 'XMLHttpRequest' },
+                            body: formData,
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            const select = document.getElementById('id_empresa');
+                            const option = new Option(data.empresa.nombre, data.empresa.id, true, true);
+                            select.add(option);
+                            showToast('Empresa creada exitosamente', 'success');
+                            bootstrap.Modal.getInstance(document.querySelector('#addEmpresaModal')).hide();
+                            form.reset();
+                        } else {
+                            showToast('Error al guardar la empresa', 'danger');
+                        }
+                    } catch (error) {
+                        showToast('Error de conexión: ' + error.message, 'danger');
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                });
+            </script>
         </div>
     </div>
 </div>

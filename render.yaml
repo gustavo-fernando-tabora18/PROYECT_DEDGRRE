@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: proyecto-django-vedde
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn vedde.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: vedde.settings
+      - key: PYTHON_VERSION
+        value: 3.10

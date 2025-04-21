@@ -316,6 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
+                showToast('Empleado creado exitosamente', 'success');
                 window.location.href = data.redirect_url || "{% url 'GVS:empleado_list' %}";
             } else {
                 // Mostrar errores en campos
