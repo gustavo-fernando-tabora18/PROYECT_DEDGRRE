@@ -1,3 +1,8 @@
+databases:
+  - name: postgres-db
+    databaseName: proyecto_vedde
+    user: vedde_user
+
 services:
   - type: web
     name: proyecto-django-vedde
@@ -9,3 +14,7 @@ services:
         value: vedde.settings
       - key: PYTHON_VERSION
         value: 3.10
+      - fromDatabase:
+          name: postgres-db
+          property: connectionString
+        key: DATABASE_URL
