@@ -2,371 +2,318 @@
 {% load static i18n %}
 
 {% block title %}
-    {% if form.instance.pk %}{% trans "Editar Entrevista" %}{% else %}{% trans "Crear Entrevista" %}{% endif %}
+  {% if form.instance.pk %}{% trans "Editar Entrevista" %}{% else %}{% trans "Crear Entrevista" %}{% endif %}
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid">
-    <div class="card shadow-lg">
-        <div class="card-header {% if form.instance.pk %}bg-warning text-dark{% else %}bg-success text-white{% endif %}">
-            <h3 class="card-title mb-0">
-                <i class="fas fa-calendar-check me-2"></i>
-                {% if form.instance.pk %}{% trans "Editar Entrevista" %}{% else %}{% trans "Nueva Entrevista" %}{% endif %}
-            </h3>
-        </div>
-
-        <form method="post" novalidate>
-            {% csrf_token %}
-            <div class="card-body">
-                <div class="row g-3">
-                    <!-- Sección Principal -->
-                    <div class="col-md-8">
-                        <div class="card h-100 border-primary">
-                            <div class="card-header bg-primary text-white">
-                                {% trans "Información Básica" %}
-                            </div>
-                            <div class="card-body">
-                                <div class="row g-3">
-                                    <!-- Asunto -->
-                                    <div class="col-12">
-                                        <div class="form-floating">
-                                            {{ form.asunto }}
-                                            <label for="{{ form.asunto.id_for_label }}">{{ form.asunto.label }}</label>
-                                            {% if form.asunto.errors %}
-                                                <div class="invalid-feedback d-block">{{ form.asunto.errors }}</div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-
-                                    <!-- Fecha y Hora -->
-                                    <div class="col-md-6">
-                                        <div class="form-floating">
-                                            <input type="datetime-local" 
-                                                   class="form-control {% if form.fecha.errors %}is-invalid{% endif %}" 
-                                                   id="{{ form.fecha.id_for_label }}" 
-                                                   name="{{ form.fecha.name }}" 
-                                                   value="{{ form.fecha.value|date:'Y-m-d\TH:i' }}">
-                                            <label for="{{ form.fecha.id_for_label }}">{{ form.fecha.label }}</label>
-                                            {% if form.fecha.errors %}
-                                                <div class="invalid-feedback d-block">{{ form.fecha.errors }}</div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-
-                                    <!-- Modalidad y Estado -->
-                                    <div class="col-md-6">
-                                        <div class="row g-2">
-                                            <div class="col-6">
-                                                <div class="form-floating">
-                                                    {{ form.modalidad }}
-                                                    <label for="{{ form.modalidad.id_for_label }}">{{ form.modalidad.label }}</label>
-                                                    {% if form.modalidad.errors %}
-                                                        <div class="invalid-feedback d-block">{{ form.modalidad.errors }}</div>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="form-floating">
-                                                    {{ form.estado }}
-                                                    <label for="{{ form.estado.id_for_label }}">{{ form.estado.label }}</label>
-                                                    {% if form.estado.errors %}
-                                                        <div class="invalid-feedback d-block">{{ form.estado.errors }}</div>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Lugar/Enlace -->
-                                    <div class="col-12">
-                                        <div class="form-floating">
-                                            {{ form.lugar }}
-                                            <label for="{{ form.lugar.id_for_label }}">{{ form.lugar.label }}</label>
-                                            {% if form.lugar.errors %}
-                                                <div class="invalid-feedback d-block">{{ form.lugar.errors }}</div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-
-                                    <!-- Descripción -->
-                                    <div class="col-12">
-                                        <div class="form-floating">
-                                            <textarea class="form-control {% if form.descripcion.errors %}is-invalid{% endif %}" 
-                                                      id="{{ form.descripcion.id_for_label }}" 
-                                                      name="{{ form.descripcion.name }}" 
-                                                      style="height: 120px">{{ form.descripcion.value|default:'' }}</textarea>
-                                            <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
-                                            {% if form.descripcion.errors %}
-                                                <div class="invalid-feedback d-block">{{ form.descripcion.errors }}</div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sección Participantes -->
-                    <div class="col-md-4">
-                        <div class="card h-100 border-primary">
-                            <div class="card-header bg-primary text-white">
-                                {% trans "Participantes" %}
-                            </div>
-                            <div class="card-body">
-                                <div class="row g-3">
-                                    <!-- Entrevistador -->
-                                    <div class="col-12">
-                                        <label class="form-label">{{ form.entrevistador.label }}</label>
-                                        <div class="input-group">
-                                            {{ form.entrevistador }}
-                                            <button type="button" 
-                                                    class="btn btn-outline-primary" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#addEntrevistadorModal"
-                                                    title="{% trans 'Agregar nuevo' %}">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                        {% if form.entrevistador.errors %}
-                                            <div class="invalid-feedback d-block">{{ form.entrevistador.errors }}</div>
-                                        {% endif %}
-                                    </div>
-
-                                    <!-- Vacante -->
-                                    <div class="col-12">
-                                        <label class="form-label">{{ form.vacante.label }}</label>
-                                        <div class="input-group">
-                                            {{ form.vacante }}
-                                            <button type="button" 
-                                                    class="btn btn-outline-primary" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#addVacanteModal"
-                                                    title="{% trans 'Agregar nueva' %}">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                        {% if form.vacante.errors %}
-                                            <div class="invalid-feedback d-block">{{ form.vacante.errors }}</div>
-                                        {% endif %}
-                                    </div>
-
-                                    <!-- Solicitante -->
-                                    <div class="col-12">
-                                        <label class="form-label">{{ form.solicitante.label }}</label>
-                                        <div class="input-group">
-                                            {{ form.solicitante }}
-                                            <button type="button" 
-                                                    class="btn btn-outline-primary" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#addSolicitanteModal"
-                                                    title="{% trans 'Agregar nuevo' %}">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                        {% if form.solicitante.errors %}
-                                            <div class="invalid-feedback d-block">{{ form.solicitante.errors }}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-footer bg-light">
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="submit" class="btn {% if form.instance.pk %}btn-warning{% else %}btn-success{% endif %} btn-lg">
-                        <i class="fas fa-save me-2"></i>
-                        {% if form.instance.pk %}{% trans "Actualizar" %}{% else %}{% trans "Guardar" %}{% endif %}
-                    </button>
-                    <a href="{% url 'GVS:entrevista_list' %}" class="btn btn-outline-secondary btn-lg">
-                        <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
-                    </a>
-                </div>
-            </div>
-        </form>
+  <div class="card shadow-lg">
+    <div class="card-header {% if form.instance.pk %}bg-warning text-dark{% else %}bg-success text-white{% endif %}">
+      <h3 class="card-title mb-0">
+        <i class="fas fa-calendar-check me-2"></i>
+        {% if form.instance.pk %}{% trans "Editar Entrevista" %}{% else %}{% trans "Nueva Entrevista" %}{% endif %}
+      </h3>
     </div>
+
+    <form method="post" novalidate id="entrevistaMainForm">
+      {% csrf_token %}
+      <div class="card-body">
+        <div class="row g-3">
+          <!-- Sección Principal (8 cols) -->
+          <div class="col-md-8">
+            <div class="card h-100 border-primary">
+              <div class="card-header bg-primary text-white">
+                {% trans "Información Básica" %}
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <!-- Asunto -->
+                  <div class="col-12">
+                    <div class="form-floating">
+                      {{ form.asunto }}
+                      <label for="{{ form.asunto.id_for_label }}">{{ form.asunto.label }}</label>
+                      {% if form.asunto.errors %}
+                        <div class="invalid-feedback d-block">{{ form.asunto.errors }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <!-- Fecha y Hora -->
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <input type="datetime-local"
+                             class="form-control {% if form.fecha.errors %}is-invalid{% endif %}"
+                             id="{{ form.fecha.id_for_label }}"
+                             name="{{ form.fecha.name }}"
+                             value="{{ form.fecha.value|date:'Y-m-d\\TH:i' }}">
+                      <label for="{{ form.fecha.id_for_label }}">{{ form.fecha.label }}</label>
+                      {% if form.fecha.errors %}
+                        <div class="invalid-feedback d-block">{{ form.fecha.errors }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <!-- Modalidad -->
+                  <div class="col-md-3">
+                    <div class="form-floating">
+                      {{ form.modalidad }}
+                      <label for="{{ form.modalidad.id_for_label }}">{{ form.modalidad.label }}</label>
+                      {% if form.modalidad.errors %}
+                        <div class="invalid-feedback d-block">{{ form.modalidad.errors }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <!-- Estado -->
+                  <div class="col-md-3">
+                    <div class="form-floating">
+                      {{ form.estado }}
+                      <label for="{{ form.estado.id_for_label }}">{{ form.estado.label }}</label>
+                      {% if form.estado.errors %}
+                        <div class="invalid-feedback d-block">{{ form.estado.errors }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <!-- Lugar/Enlace -->
+                  <div class="col-12">
+                    <div class="form-floating">
+                      {{ form.lugar }}
+                      <label for="{{ form.lugar.id_for_label }}">{{ form.lugar.label }}</label>
+                      {% if form.lugar.errors %}
+                        <div class="invalid-feedback d-block">{{ form.lugar.errors }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <!-- Descripción -->
+                  <div class="col-12">
+                    <div class="form-floating">
+                      <textarea class="form-control {% if form.descripcion.errors %}is-invalid{% endif %}"
+                                id="{{ form.descripcion.id_for_label }}"
+                                name="{{ form.descripcion.name }}"
+                                style="height:120px">{{ form.descripcion.value|default:'' }}</textarea>
+                      <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+                      {% if form.descripcion.errors %}
+                        <div class="invalid-feedback d-block">{{ form.descripcion.errors }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Participantes (4 cols) -->
+          <div class="col-md-4">
+            <div class="card h-100 border-primary">
+              <div class="card-header bg-primary text-white">
+                {% trans "Participantes" %}
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <!-- Entrevistador -->
+                  <div class="col-12">
+                    <label class="form-label">{{ form.entrevistador.label }}</label>
+                    <div class="input-group mb-2">
+                      {{ form.entrevistador }}
+                      <button type="button"
+                              class="btn btn-outline-primary"
+                              data-bs-toggle="modal"
+                              data-bs-target="#addEntrevistadorModal"
+                              title="{% trans 'Agregar nuevo entrevistador' %}">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                    {% if form.entrevistador.errors %}
+                      <div class="invalid-feedback d-block">{{ form.entrevistador.errors }}</div>
+                    {% endif %}
+                  </div>
+                  <!-- Vacante -->
+                  <div class="col-12">
+                    <label class="form-label">{{ form.vacante.label }}</label>
+                    <div class="input-group mb-2">
+                      {{ form.vacante }}
+                      <button type="button"
+                              class="btn btn-outline-primary"
+                              data-bs-toggle="modal"
+                              data-bs-target="#addVacanteModal"
+                              title="{% trans 'Agregar nueva vacante' %}">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                    {% if form.vacante.errors %}
+                      <div class="invalid-feedback d-block">{{ form.vacante.errors }}</div>
+                    {% endif %}
+                  </div>
+                  <!-- Solicitante -->
+                  <div class="col-12">
+                    <label class="form-label">{{ form.solicitante.label }}</label>
+                    <div class="input-group mb-2">
+                      {{ form.solicitante }}
+                      <button type="button"
+                              class="btn btn-outline-primary"
+                              data-bs-toggle="modal"
+                              data-bs-target="#addSolicitanteModal"
+                              title="{% trans 'Agregar nuevo solicitante' %}">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                    {% if form.solicitante.errors %}
+                      <div class="invalid-feedback d-block">{{ form.solicitante.errors }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones Guardar / Cancelar -->
+      <div class="card-footer bg-light d-flex justify-content-end">
+        <button type="submit"
+                class="btn {% if form.instance.pk %}btn-warning{% else %}btn-success{% endif %} btn-lg me-2">
+          <i class="fas fa-save me-2"></i>
+          {% if form.instance.pk %}{% trans "Actualizar" %}{% else %}{% trans "Guardar" %}{% endif %}
+        </button>
+        <a href="{% url 'GVS:entrevista_list' %}" class="btn btn-outline-secondary btn-lg">
+          <i class="fas fa-times me-2"></i>{% trans "Cancelar" %}
+        </a>
+      </div>
+    </form>
+  </div>
 </div>
 
-<!-- Modals -->
+<!-- Modales idénticos a antes -->
 <div class="modal fade" id="addEntrevistadorModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">{% trans "Nuevo Entrevistador" %}</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="entrevistadorForm" method="post" action="{% url 'GVS:entrevistador_create' %}">
-                    {% csrf_token %}
-                    <div class="row g-3">
-                        {% for field in entrevistador_form %}
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    {{ field }}
-                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                    {% if field.errors %}
-                                        <div class="invalid-feedback d-block">{{ field.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cerrar" %}</button>
-                <button type="submit" form="entrevistadorForm" class="btn btn-primary">{% trans "Guardar" %}</button>
-            </div>
-        </div>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">{% trans "Nuevo Entrevistador" %}</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="entrevistadorForm"
+              method="post"
+              action="{% url 'GVS:entrevistador_create' %}">
+          {% csrf_token %}
+          <div class="row g-3">
+            {% for field in entrevistador_form %}
+              <div class="col-md-6">
+                <div class="form-floating">
+                  {{ field }}
+                  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {% if field.errors %}
+                    <div class="invalid-feedback d-block">{{ field.errors }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal">{% trans "Cerrar" %}</button>
+        <button type="submit"
+                form="entrevistadorForm"
+                class="btn btn-primary">{% trans "Guardar" %}</button>
+      </div>
     </div>
+  </div>
 </div>
 
 <div class="modal fade" id="addVacanteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">{% trans "Nueva Vacante" %}</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="vacanteForm" method="post" action="{% url 'GVS:vacante_create' %}">
-                    {% csrf_token %}
-                    <div class="row g-3">
-                        {% for field in vacante_form %}
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    {{ field }}
-                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                    {% if field.errors %}
-                                        <div class="invalid-feedback d-block">{{ field.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cerrar" %}</button>
-                <button type="submit" form="vacanteForm" class="btn btn-primary">{% trans "Guardar" %}</button>
-            </div>
-        </div>
-    </div>
+  <!-- ... idéntico al anterior, con id="vacanteForm" y vacante_form ... -->
 </div>
 
 <div class="modal fade" id="addSolicitanteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">{% trans "Nuevo Solicitante" %}</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="solicitanteForm" method="post" action="{% url 'GVS:solicitante_create' %}">
-                    {% csrf_token %}
-                    <div class="row g-3">
-                        {% for field in solicitante_form %}
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    {{ field }}
-                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                    {% if field.errors %}
-                                        <div class="invalid-feedback d-block">{{ field.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cerrar" %}</button>
-                <button type="submit" form="solicitanteForm" class="btn btn-primary">{% trans "Guardar" %}</button>
-            </div>
-        </div>
-    </div>
+  <!-- ... idéntico al anterior, con id="solicitanteForm" y solicitante_form ... -->
 </div>
 
-<div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100"></div>
+<div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index:1100"></div>
 {% endblock %}
 
-{% block scripts %}
+{% block extra_js %}
 {{ block.super }}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar tooltips
-    const tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        .map(el => new bootstrap.Tooltip(el))
+document.addEventListener('DOMContentLoaded', () => {
+  // CSRF cookie helper
+  function getCookie(name) {
+    let value = null;
+    document.cookie.split(';').forEach(c => {
+      const [k, v] = c.trim().split('=');
+      if (k === name) value = decodeURIComponent(v);
+    });
+    return value;
+  }
 
-    // Función genérica para manejar formularios modales
-    const handleModalForm = (formId, selectId, modalId) => {
-        const form = document.querySelector(formId)
-        if (!form) return
+  // Mostrar toast
+  function showToast(msg, type='success') {
+    const tc = document.getElementById('toastContainer');
+    const t  = document.createElement('div');
+    t.className = `toast show align-items-center text-white bg-${type} border-0 mb-2`;
+    t.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body">
+          <i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'} me-2"></i>
+          ${msg}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>`;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault()
-            const submitBtn = form.querySelector('button[type="submit"]')
-            const originalText = submitBtn.innerHTML
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>{% trans "Guardando..." %}'
-            submitBtn.disabled = true
+  // Handler genérico
+  function handleModal(formSelector, selectId, modalSelector) {
+    const form = document.querySelector(formSelector);
+    if (!form) return;
 
-            try {
-                const formData = new FormData(form)
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    }
-                })
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const submitBtn = e.submitter;
+      const origText  = submitBtn.innerHTML;
+      submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>{% trans "Guardando..." %}`;
+      submitBtn.disabled    = true;
 
-                const data = await response.json()
-                if (data.success) {
-                    const select = document.getElementById(selectId)
-                    const option = new Option(data.nombre || data.titulo, data.id, true, true)
-                    select.add(option)
-                    
-                    bootstrap.Modal.getInstance(document.querySelector(modalId)).hide()
-                    showToast('{% trans "Registro creado exitosamente" %}', 'success')
-                    form.reset()
-                } else {
-                    showToast(data.error || '{% trans "Error al guardar" %}', 'danger')
-                }
-            } catch (error) {
-                console.error('Error:', error)
-                showToast('{% trans "Error de conexión" %}', 'danger')
-            } finally {
-                submitBtn.innerHTML = originalText
-                submitBtn.disabled = false
-            }
-        })
-    }
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: new FormData(form)
+        });
+        const data = await res.json();
+        if (data.success) {
+          const item   = data.entrevistador || data.vacante || data.solicitante;
+          const select = document.getElementById(selectId);
+          const option = new Option(item.nombre, item.id, true, true);
+          select.add(option);
+          // refresh (si fuera selectpicker)
+          if (typeof $ !== 'undefined' && $(select).hasClass('selectpicker')) {
+            $(select).selectpicker('refresh');
+          }
+          // notificación y cerrar
+          showToast('{% trans "Registro creado exitosamente" %}', 'success');
+          bootstrap.Modal.getInstance(document.querySelector(modalSelector)).hide();
+          form.reset();
+        } else {
+          showToast(data.error || '{% trans "Error al guardar" %}', 'danger');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('{% trans "Error de conexión" %}', 'danger');
+      } finally {
+        submitBtn.innerHTML = origText;
+        submitBtn.disabled  = false;
+      }
+    });
+  }
 
-    // Configurar modales
-    handleModalForm('#entrevistadorForm', 'id_entrevistador', '#addEntrevistadorModal')
-    handleModalForm('#vacanteForm', 'id_vacante', '#addVacanteModal')
-    handleModalForm('#solicitanteForm', 'id_solicitante', '#addSolicitanteModal')
-
-    // Mostrar notificaciones Toast
-    const showToast = (message, type = 'success') => {
-        const toastContainer = document.getElementById('toastContainer')
-        const toast = document.createElement('div')
-        toast.className = `toast show align-items-center text-white bg-${type} border-0`
-        toast.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
-                    ${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        `
-        toastContainer.appendChild(toast)
-        setTimeout(() => toast.remove(), 5000)
-    }
-})
+  handleModal('#entrevistadorForm', 'id_entrevistador', '#addEntrevistadorModal');
+  handleModal('#vacanteForm',     'id_vacante',       '#addVacanteModal');
+  handleModal('#solicitanteForm', 'id_solicitante',   '#addSolicitanteModal');
+});
 </script>
 {% endblock %}

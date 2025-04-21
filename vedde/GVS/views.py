@@ -346,9 +346,9 @@ class EmpleadoCreateView(CreateView):
                     'success': True,
                     'redirect_url': str(self.success_url)
                 })
-            
-            return super().form_valid(form)
 
+            return super().form_valid(form)
+                    
         except Exception as e:
             return JsonResponse({
                 'success': False,
@@ -361,23 +361,23 @@ class EmpleadoCreateView(CreateView):
                 'success': False,
                 'errors': form.errors.get_json_data()
             }, status=400)
-            
+
         return super().form_invalid(form)
-    
+                
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['solicitante_form'] = SolicitanteForm()  # Añadir formulario de empresa
-
+    
         return context
     
-    
+
 
 class EmpleadoUpdateView(UpdateView):
     model = Empleado
     form_class = EmpleadoForm
     template_name = 'GVS/empleado/editar.html'
     success_url = reverse_lazy('GVS:empleado_list')
-
+    
     def form_valid(self, form):
         form.instance.actualizado_por = self.request.user
         response = super().form_valid(form)
@@ -400,12 +400,12 @@ class EmpleadoDeleteView(PermissionRequiredMixin, DeleteView):
     template_name = 'GVS/empleado/eliminar.html'
     success_url = reverse_lazy('GVS:empleado_list')
     permission_required = 'GVS.delete_empleado'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['puede_eliminar'] = self.object.status in ['Inactivo', 'Pendiente']
         return context
-
+    
     def delete(self, request, *args, **kwargs):
         messages.success(request, _('¡Empleado eliminado con éxito!'))
         return super().delete(request, *args, **kwargs)
@@ -421,14 +421,14 @@ class SolicitanteListView(ListView):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Listado de Solicitantes')
         return context
-
+    
 class SolicitanteCreateView(SuccessMessageMixin, CreateView):
     model = Solicitante
     form_class = SolicitanteForm
     template_name = 'GVS/solicitante/Crear.html'
     success_url = reverse_lazy('GVS:solicitante_list')
-    success_message = "¡Solicitante creado exitosamente!"
-
+    success_m= "¡Solicitante creado exitosamente!"
+    
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
@@ -449,7 +449,7 @@ class SolicitanteUpdateView(SuccessMessageMixin, UpdateView):
     template_name = 'GVS/solicitante/Editar.html'
     success_url = reverse_lazy('GVS:solicitante_list')
     success_message = _('¡Solicitante "%(object)s" actualizado correctamente!')
-
+    
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
@@ -460,7 +460,6 @@ class SolicitanteUpdateView(SuccessMessageMixin, UpdateView):
         if self.object.foto:
             ext = self.object.foto.name.split('.')[-1]  # Obtener la extensión del archivo
             self.object.foto.name = f'fotos/{self.object.dni}.{ext}'
-
         self.object.save()
         return super().form_valid(form)
 
@@ -573,7 +572,6 @@ class EntrevistadorCreateView(SuccessMessageMixin, CreateView):
             return JsonResponse({'success': False, 'error': form.errors.as_json()}, status=400)
         return super().form_invalid(form)
 
-
 class EntrevistadorUpdateView(SuccessMessageMixin, UpdateView):
     model = Entrevistador
     form_class = EntrevistadorForm
@@ -604,6 +602,21 @@ class EntrevistaCreateView(SuccessMessageMixin, CreateView):
     template_name = 'GVS/entrevista/Crear.html'
     success_url = reverse_lazy('GVS:entrevista_list')
     success_message = _('¡Entrevista creada exitosamente!')
+
+    def form_valid(self, form):
+        self.object = form.save()
+
+        # Crear beneficio automáticamente si aplica
+        if self.object.solicitante and not Beneficio.objects.filter(empleado__solicitante=self.object.solicitante).exists():
+            empleado = Empleado.objects.filter(solicitante=self.object.solicitante).first()
+            if empleado:
+                Beneficio.objects.create(
+                    empleado=empleado,
+                    dias_base=15,
+                    saldo_disponible=15
+                )
+
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -672,10 +685,8 @@ class AuditoriaListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         # Filtros individuales
         if params['modelo']:
             queryset = queryset.filter(modelo_afectado=params['modelo'])
-            
         if params['accion']:
             queryset = queryset.filter(accion=params['accion'])
-            
         if params['usuario']:
             queryset = queryset.filter(usuario__username=params['usuario'])
 
@@ -693,6 +704,16 @@ class AuditoriaListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Opciones para los selectores
+        context['modelos_disponibles'] = Auditoria.objects.order_by(
+            'modelo_afectado'
+        ).values_list('modelo_afectado', flat=True).distinct()
+        context['acciones_disponibles'] = self.ACCIONES_DISPONIBLES
+        
+        # Para el selector de usuarios
+        context['usuarios_disponibles'] = User.objects.filter(
+            auditoria__isnull=False
+        ).distinct().order_by('username')
         
         # Para mantener los filtros en los inputs
         context['current_search'] = {
@@ -704,20 +725,7 @@ class AuditoriaListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             'usuario': self.request.GET.get('usuario', '')
         }
         
-        # Opciones para los selectores
-        context['modelos_disponibles'] = Auditoria.objects.order_by(
-            'modelo_afectado'
-        ).values_list('modelo_afectado', flat=True).distinct()
-        
-        context['acciones_disponibles'] = self.ACCIONES_DISPONIBLES
-        
-        # Para el selector de usuarios
-        context['usuarios_disponibles'] = User.objects.filter(
-            auditoria__isnull=False
-        ).distinct().order_by('username')
-        
         return context
-
 
 class AuditoriaDetailView(LoginRequiredMixin, DetailView):
     model = Auditoria
@@ -801,10 +809,7 @@ class BeneficioDeleteView(SuccessMessageMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         context['dias_restantes'] = self.object.saldo_disponible if self.object else 0
         return context
-    
-    
 
-# SOLICITUD VACACIONES
 # SOLICITUD VACACIONES
 class SolicitudVacacionesListView(LoginRequiredMixin, ListView):
     model = SolicitudVacaciones
@@ -818,12 +823,12 @@ class SolicitudVacacionesListView(LoginRequiredMixin, ListView):
         # Filtros para usuarios no administradores
         if not self.request.user.is_superuser:
             qs = qs.filter(empleado__usuario=self.request.user)
-            
+        
         # Filtro por estado
         estado = self.request.GET.get('estado')
         if estado:
             qs = qs.filter(estado=estado)
-            
+        
         return qs.order_by('-creado_en')
 
     def get_context_data(self, **kwargs):
@@ -856,6 +861,12 @@ class SolicitudVacacionesUpdateView(SuccessMessageMixin, UpdateView):
     template_name = 'GVS/solicitud_vacaciones/editar.html'
     success_url = reverse_lazy('GVS:solicitud_vacaciones_list')
     success_message = _('¡Estado actualizado correctamente!')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Verificar si se pueden reintegrar días (si estaba aprobada)
+        context['reintegrar_dias'] = self.object.estado == 'APROBADA'
+        return context
 
 class SolicitudVacacionesDeleteView(SuccessMessageMixin, DeleteView):
     model = SolicitudVacaciones

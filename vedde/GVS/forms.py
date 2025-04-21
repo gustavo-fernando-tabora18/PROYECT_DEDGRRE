@@ -92,15 +92,25 @@ class EmpresaForm(forms.ModelForm):
             })
         }
 
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre')
+        if len(nombre) < 3:
+            raise ValidationError(_('El nombre debe tener al menos 3 caracteres.'))
+        return nombre
+
     def clean_telefono(self):
-        telefono = self.cleaned_data['telefono']
-        validate_phone(telefono)
-        return telefono.replace(' ', '').replace('-', '')  # Normaliza a +504XXXXXXXX
+        telefono = self.cleaned_data.get('telefono')
+        try:
+            return validate_phone(telefono)
+        except ValidationError as e:
+            raise ValidationError(_('Teléfono inválido: ') + str(e))
 
     def clean_correo_electronico(self):
-        correo = self.cleaned_data['correo_electronico']
-        validate_email_custom(correo)
-        return correo.strip().lower()  # Normaliza a minúsculas
+        correo = self.cleaned_data.get('correo_electronico')
+        try:
+            return validate_email_custom(correo)
+        except ValidationError as e:
+            raise ValidationError(_('Correo electrónico inválido: ') + str(e))
 
 class AbanderadoForm(forms.ModelForm):
     class Meta:
@@ -254,26 +264,14 @@ class EmpleadoForm(forms.ModelForm):
         fecha_inactivacion = cleaned_data.get('fecha_inactivacion')
         fecha_contratacion = cleaned_data.get('fecha_contratacion')
 
-        # Validación 1: Fecha inactivación requerida si está Inactivo
         if status == 'Inactivo' and not fecha_inactivacion:
-            self.add_error(
-                'fecha_inactivacion',
-                _('Este campo es obligatorio para empleados inactivos.')
-            )
+            self.add_error('fecha_inactivacion', _('Este campo es obligatorio para empleados inactivos.'))
 
-        # Validación 2: Fechas coherentes
         if fecha_inactivacion and fecha_contratacion:
             if fecha_inactivacion < fecha_contratacion:
-                self.add_error(
-                    'fecha_inactivacion',
-                    _('Debe ser posterior a la fecha de contratación')
-                )
-            
+                self.add_error('fecha_inactivacion', _('Debe ser posterior a la fecha de contratación.'))
             if fecha_inactivacion > date.today():
-                self.add_error(
-                    'fecha_inactivacion',
-                    _('No puede ser una fecha futura')
-                )
+                self.add_error('fecha_inactivacion', _('No puede ser una fecha futura.'))
 
         return cleaned_data
 
@@ -299,26 +297,22 @@ class SolicitanteForm(forms.ModelForm):
                 'vacante': forms.Select(attrs={'class': 'form-control'}),
             }
 
+        def clean_dni(self):
+            dni = self.cleaned_data.get('dni')
+            if len(dni) != 13:
+                raise ValidationError(_('El DNI debe tener exactamente 13 caracteres.'))
+            return dni
+
         def clean_cv(self):
             cv = self.cleaned_data.get('cv')
-            if cv:
-                max_size = 5 * 1024 * 1024  # 5 MB
-                if cv.size > max_size:
-                    raise ValidationError("El archivo CV no puede exceder los 5 MB.")
-                valid_extensions = ['.pdf', '.doc', '.docx']
-                if not any(cv.name.endswith(ext) for ext in valid_extensions):
-                    raise ValidationError("El archivo CV debe tener una de las siguientes extensiones: .pdf, .doc, .docx.")
+            if cv and cv.size > 5 * 1024 * 1024:  # 5 MB
+                raise ValidationError(_('El archivo CV no puede exceder los 5 MB.'))
             return cv
 
         def clean_foto(self):
             foto = self.cleaned_data.get('foto')
-            if foto:
-                max_size = 5 * 1024 * 1024  # 5 MB
-                if foto.size > max_size:
-                    raise ValidationError("La foto no puede exceder los 5 MB.")
-                valid_extensions = ['.jpg', '.jpeg', '.png']
-                if not any(foto.name.endswith(ext) for ext in valid_extensions):
-                    raise ValidationError("La foto debe ser un archivo de imagen válido (.jpg, .jpeg, .png).")
+            if foto and foto.size > 5 * 1024 * 1024:  # 5 MB
+                raise ValidationError(_('La foto no puede exceder los 5 MB.'))
             return foto
 
         def clean_telefono(self):
@@ -408,6 +402,18 @@ class VacanteForm(forms.ModelForm):
     
     def clean_correo_contacto(self):
         return validate_email_custom(self.cleaned_data['correo_contacto'])
+
+    def clean_fecha_maxima_postulacion(self):
+        fecha = self.cleaned_data.get('fecha_maxima_postulacion')
+        if fecha and fecha < date.today():
+            raise ValidationError(_('La fecha máxima de postulación no puede ser en el pasado.'))
+        return fecha
+
+    def clean_salario_ofrecido(self):
+        salario = self.cleaned_data.get('salario_ofrecido')
+        if salario and salario < 0:
+            raise ValidationError(_('El salario ofrecido no puede ser negativo.'))
+        return salario
 
 class EntrevistadorForm(forms.ModelForm):
     class Meta:
@@ -544,15 +550,12 @@ class BeneficioForm(forms.ModelForm):
         dias_adicionales = cleaned_data.get('dias_adicionales', 0)
         dias_tomados = cleaned_data.get('dias_tomados', 0)
         
-        # Validación de días base mínimo
         if dias_base < 10:
-            self.add_error('dias_base', 'El mínimo legal es 10 días (Art. 346 Código Trabajo)')
-        
-        # Validación de días tomados vs total disponible
+            self.add_error('dias_base', _('El mínimo legal es 10 días (Art. 346 Código Trabajo).'))
+
         if dias_tomados > (dias_base + dias_adicionales):
-            error_msg = f"Días usados ({dias_tomados}) superan el total disponible ({dias_base + dias_adicionales})"
-            self.add_error('dias_tomados', error_msg)
-        
+            self.add_error('dias_tomados', _('Los días tomados no pueden exceder el total disponible.'))
+
         return cleaned_data
 
 # ==================== VACACIONES ====================

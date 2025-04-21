@@ -144,27 +144,7 @@
                             {% endif %}
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Estaciones Asignadas</label>
-                            <select name="estaciones" 
-                                    id="id_estaciones" 
-                                    class="form-control selectpicker" 
-                                    multiple
-                                    data-live-search="true"
-                                    data-actions-box="true"
-                                    title="Seleccione estaciones...">
-                                {% for estacion in estaciones %}
-                                    <option value="{{ estacion.id }}" {% if estacion.id in form.estaciones.value %}selected{% endif %}>
-                                        {{ estacion.nombre }} ({{ estacion.empresa }})
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            {% if form.estaciones.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.estaciones.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
+                        
 
                         <div class="mb-3">
                             <label class="form-label">Comentarios del Estado</label>
