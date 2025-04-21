@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 from django.utils.translation import gettext_lazy as _
+import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -67,18 +69,11 @@ WSGI_APPLICATION = 'vedde.wsgi.application'
 
 # Database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ProyectGVS01',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # Mayor seguridad SQL
-            'charset': 'utf8mb4',
-        }
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,  # mantiene las conexiones abiertas más tiempo
+        ssl_require=True   # importante para PostgreSQL en producción
+    )
 }
 
 
